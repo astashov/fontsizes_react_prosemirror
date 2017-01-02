@@ -1,0 +1,15 @@
+<html>
+<head>
+  <script src="node_modules/systemjs/dist/system.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <code style="display: none" class="str">
+    <p><s font-size="14">Some</s><s font-size="32"> initial </s><s font-size="28">text</s></p>
+  </code>
+  <div id="text-editor"></div>
+  <script>
+    System.import("./dist/main.js").then(function (module) { return module.main(document.querySelector("#text-editor")); });
+  </script>
+</body>
+</html>

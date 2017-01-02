@@ -1,0 +1,19 @@
+p {
+  margin: 0;
+}
+
+s {
+  text-decoration: none;
+}
+
+.text-editor {
+  border: 1px solid grey;
+  padding: 0.25em;
+}
+
+.text-editor .ProseMirror {
+  font-size: 10px;
+  outline: none;
+  white-space: pre-wrap;
+  word-wrap: normal;
+}
