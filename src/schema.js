@@ -1,60 +1,57 @@
 // import {nodes} from "prosemirror-schema-basic";
 import {Schema} from "prosemirror-model";
-
-const nodes = {
-  doc: {
-    content: "block+"
-  },
-  paragraph: {
-    group: "block",
-    attrs: {
-      "fontSize": {default: null},
-    },
-    content: "inline<_>*",
-    toDOM: (node) => {
-      let style = "";
-      if (node.attrs["fontSize"] != null) {
-        style += `font-size: ${node.attrs["fontSize"]}px`;
-      }
-      return ["p", {style: style}, 0];
-    },
-    parseDOM: [{
-      tag: "p",
-      getAttrs: (dom) => {
-        return {
-          "fontSize": dom.getAttribute("font-size"),
-        };
-      },
-      text: null,
-      preserveWhitespace: true
-    }]
-  },
-  text: {
-    group: "inline",
-    toDOM: (node) => node.text,
-  }
-};
-
-const marks = {
-  fontSize: {
-    attrs: {
-      value: {default: null}
-    },
-    parseDOM: [{
-      getAttrs(dom) {
-        const fontSize = dom.getAttribute("font-size");
-        return {value: fontSize};
-      },
-      tag: "s"
-    }],
-    toDOM(node) {
-      const fontSize = node.attrs["value"];
-      return ["s", {style: `font-size: ${fontSize}`}];
-    }
-  }
-};
+import {marks} from "prosemirror-schema-basic";
 
 export const schema = new Schema({
-  nodes: nodes,
-  marks: marks
+  nodes: {
+    doc: {content: "paragraph+"},
+    // Paragraphs define, serialize, and parse an extra attribute
+    // `marks`, which is used to store the active set of marks for
+    // empty paragraph.
+    paragraph: {
+      content: "inline<_>*",
+      attrs: {marks: {default: null}},
+      parseDOM: [{
+        tag: "p",
+        getAttrs(dom) {
+          const marks = dom.getAttribute("data-marks");
+          return marks ? {marks: JSON.parse(marks)} : null;
+        }
+      }],
+      toDOM(node) {
+        const marks = node.attrs.marks;
+        const size = marks && marks.size;
+        return ["p", {
+          style: size ? `font-size: ${size.size}pt` : null,
+          "data-marks": marks ? JSON.stringify(marks) : null
+        }, 0];
+      }
+    },
+    text: {
+      group: "inline",
+      toDOM(node) {
+        return ["span", {class: "text"}, node.text];
+      }
+    }
+  },
+  marks: {
+    strong: marks.strong,
+    em: marks.em,
+    // Simple size mark, based on the examples in our emails.
+    size: {
+      attrs: {size: {}},
+      parseDOM: [{
+        tag: "s[font-size]",
+        getAttrs(dom) {
+          const size = +dom.getAttribute("font-size");
+          if (!isNaN(size)) {
+            return {size: size};
+          }
+        }
+      }],
+      toDOM(node) {
+        return ["s", {"font-size": node.attrs.size, style: `font-size: ${node.attrs.size}pt`}];
+      }
+    }
+  }
 });

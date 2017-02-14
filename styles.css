@@ -17,3 +17,7 @@ s {
   white-space: pre-wrap;
   word-wrap: normal;
 }
+
+.text-editor .empty {
+  font-size: 14px;
+}

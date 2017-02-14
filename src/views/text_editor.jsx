@@ -6,9 +6,8 @@ export class TextEditorView extends React.Component {
     this.textEditor = this.props.textEditor;
     this.view = new EditorView(this.refs["text-editor"], {
       state: this.textEditor.editorState,
-      attributes: {spellcheck: false},
-      onAction: action => {
-        this.textEditor = this.textEditor.applyAction(action);
+      dispatchTransaction: (tr) => {
+        this.textEditor = this.textEditor.applyTransaction(tr);
         if (typeof this.props.onUpdate === "function") {
           this.props.onUpdate(this.textEditor);
         }
